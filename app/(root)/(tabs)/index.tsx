@@ -1,7 +1,7 @@
 import Search from "@/components/Search";
 import icons from "@/constants/icons";
 import images from "@/constants/images";
-import { Image, Text, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -25,8 +25,20 @@ export default function Index() {
             <View className="absolute top-0 right-1 size-2 rounded-full bg-primary-300" />
           </View>
         </View>
+        <Search placeholder="Search for anything" />
+        <View className="my-5">
+          <View className="flex flex-row items-center justify-between">
+            <Text className="text-xl font-rubik-bold text-black-300">
+              Featured
+            </Text>
+            <TouchableOpacity>
+              <Text className="text-base font-rubik-bold text-primary-300">
+                See All
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-      <Search placeholder="Search for anything" />
     </SafeAreaView>
   );
 }
