@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Card, FeaturedCard } from "@/components/Cards";
 import Filters from "@/components/Filters";
 import NoResults from "@/components/NoResults";
@@ -6,11 +7,13 @@ import icons from "@/constants/icons";
 import images from "@/constants/images";
 import { getLatestProperties, getProperties } from "@/lib/appwrite";
 import { useGlobalContext } from "@/lib/global-provider";
+import seed from "@/lib/seed";
 import { useAppwrite } from "@/lib/useAppWrite";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import {
   ActivityIndicator,
+  Button,
   FlatList,
   Image,
   Text,
@@ -50,11 +53,12 @@ export default function Index() {
       query: params.query!,
       limit: 6,
     });
-  }, [params.filter, params.query, refetch]);
+  }, [params.filter, params.query]);
   const handleCardPress = (id: string) => router.push(`/properties/${id}`);
 
   return (
     <SafeAreaView className="bg-white h-full">
+      <Button onPress={seed} title="Seed Data" />
       <FlatList
         data={properties}
         renderItem={({ item }) => (
@@ -122,6 +126,7 @@ export default function Index() {
                   )}
                   keyExtractor={(item) => item.$id}
                   horizontal
+                  bounces={false}
                   showsHorizontalScrollIndicator={false}
                   contentContainerClassName="flex gap-5 mt-5"
                 />

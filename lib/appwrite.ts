@@ -1,4 +1,4 @@
-import { Property } from "@/components/Cards";
+import { Property } from "@/types";
 import * as Linking from "expo-linking";
 import { openAuthSessionAsync } from "expo-web-browser";
 import {
@@ -148,5 +148,65 @@ export async function getProperties({
   } catch (error) {
     console.error(error);
     return [];
+  }
+}
+
+// write function to get property by id
+export async function getPropertyById({ id }: { id: string }) {
+  try {
+    // Fetch the main property document
+    const property = await databases.getDocument(
+      config.databaseId!,
+      config.propertiesCollectionId!,
+      id
+    );
+    // Fetch the agent details if agent ID exists
+    if (property.agent) {
+      try {
+        const agent = await databases.getDocument(
+          config.databaseId!,
+          config.agentsCollectionId!, // You need to add this to your config
+          property.agent
+        );
+        property.agent = agent;
+      } catch (error) {
+        console.error("Error fetching agent:", error);
+      }
+    }
+
+    // Fetch gallery images by filtering where property field equals this property's ID
+    try {
+      const galleryResponse = await databases.listDocuments(
+        config.databaseId!,
+        config.galleriesCollectionId!,
+        [Query.equal("property", id)] // This is the property relationship field in Gallery
+      );
+      property.gallery = galleryResponse.documents;
+    } catch (error) {
+      console.error("Error fetching gallery:", error);
+      property.gallery = [];
+    }
+
+    // Fetch reviews by filtering where property field equals this property's ID
+    try {
+      const reviewsResponse = await databases.listDocuments(
+        config.databaseId!,
+        config.reviewsCollectionId!,
+        [Query.equal("property", id)] // Check your Reviews collection for the actual field name
+      );
+      property.reviews = reviewsResponse.documents;
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      property.reviews = [];
+    }
+    // const result = await databases.getDocument(
+    //   config.databaseId!,
+    //   config.propertiesCollectionId!,
+    //   id
+    // );
+    return property as unknown as Property;
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 }

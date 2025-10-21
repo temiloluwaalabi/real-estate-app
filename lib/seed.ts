@@ -1,3 +1,9 @@
+import {
+  agentData,
+  propertyData,
+  reviewerNames,
+  reviewTexts,
+} from "@/constants/data";
 import { ID } from "react-native-appwrite";
 import { config, databases } from "./appwrite";
 import {
@@ -14,16 +20,16 @@ const COLLECTIONS = {
   PROPERTY: config.propertiesCollectionId,
 };
 
-const propertyTypes = [
-  "House",
-  "Townhome",
-  "Condo",
-  "Duplex",
-  "Studio",
-  "Villa",
-  "Apartment",
-  "Others",
-];
+// const propertyTypes = [
+//   "House",
+//   "Townhome",
+//   "Condo",
+//   "Duplex",
+//   "Studio",
+//   "Villa",
+//   "Apartment",
+//   "Others",
+// ];
 
 const facilities = [
   "Laundry",
@@ -36,39 +42,39 @@ const facilities = [
   "Swimming-Pool",
 ];
 
-function getRandomSubset<T>(
-  array: T[],
-  minItems: number,
-  maxItems: number
-): T[] {
-  if (minItems > maxItems) {
-    throw new Error("minItems cannot be greater than maxItems");
-  }
-  if (minItems < 0 || maxItems > array.length) {
-    throw new Error(
-      "minItems or maxItems are out of valid range for the array"
-    );
-  }
+// function getRandomSubset<T>(
+//   array: T[],
+//   minItems: number,
+//   maxItems: number
+// ): T[] {
+//   if (minItems > maxItems) {
+//     throw new Error("minItems cannot be greater than maxItems");
+//   }
+//   if (minItems < 0 || maxItems > array.length) {
+//     throw new Error(
+//       "minItems or maxItems are out of valid range for the array"
+//     );
+//   }
 
-  // Generate a random size for the subset within the range [minItems, maxItems]
-  const subsetSize =
-    Math.floor(Math.random() * (maxItems - minItems + 1)) + minItems;
+//   // Generate a random size for the subset within the range [minItems, maxItems]
+//   const subsetSize =
+//     Math.floor(Math.random() * (maxItems - minItems + 1)) + minItems;
 
-  // Create a copy of the array to avoid modifying the original
-  const arrayCopy = [...array];
+//   // Create a copy of the array to avoid modifying the original
+//   const arrayCopy = [...array];
 
-  // Shuffle the array copy using Fisher-Yates algorithm
-  for (let i = arrayCopy.length - 1; i > 0; i--) {
-    const randomIndex = Math.floor(Math.random() * (i + 1));
-    [arrayCopy[i], arrayCopy[randomIndex]] = [
-      arrayCopy[randomIndex],
-      arrayCopy[i],
-    ];
-  }
+//   // Shuffle the array copy using Fisher-Yates algorithm
+//   for (let i = arrayCopy.length - 1; i > 0; i--) {
+//     const randomIndex = Math.floor(Math.random() * (i + 1));
+//     [arrayCopy[i], arrayCopy[randomIndex]] = [
+//       arrayCopy[randomIndex],
+//       arrayCopy[i],
+//     ];
+//   }
 
-  // Return the first `subsetSize` elements of the shuffled array
-  return arrayCopy.slice(0, subsetSize);
-}
+//   // Return the first `subsetSize` elements of the shuffled array
+//   return arrayCopy.slice(0, subsetSize);
+// }
 
 async function seed() {
   try {
@@ -92,59 +98,30 @@ async function seed() {
 
     // Seed Agents
     const agents = [];
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i < agentData.length; i++) {
       const agent = await databases.createDocument(
         config.databaseId!,
         COLLECTIONS.AGENT!,
         ID.unique(),
         {
-          name: `Agent ${i}`,
-          email: `agent${i}@example.com`,
-          avatar: agentImages[Math.floor(Math.random() * agentImages.length)],
+          name: agentData[i].name,
+          email: agentData[i].email,
+          avatar: agentImages[i % agentImages.length],
         }
       );
       agents.push(agent);
     }
     console.log(`Seeded ${agents.length} agents.`);
 
-    // Seed Reviews
-    const reviews = [];
-    for (let i = 1; i <= 20; i++) {
-      const review = await databases.createDocument(
-        config.databaseId!,
-        COLLECTIONS.REVIEWS!,
-        ID.unique(),
-        {
-          name: `Reviewer ${i}`,
-          avatar: reviewImages[Math.floor(Math.random() * reviewImages.length)],
-          review: `This is a review by Reviewer ${i}.`,
-          rating: Math.floor(Math.random() * 5) + 1, // Rating between 1 and 5
-        }
-      );
-      reviews.push(review);
-    }
-    console.log(`Seeded ${reviews.length} reviews.`);
-
-    // Seed Galleries
-    const galleries = [];
-    for (const image of galleryImages) {
-      const gallery = await databases.createDocument(
-        config.databaseId!,
-        COLLECTIONS.GALLERY!,
-        ID.unique(),
-        { image }
-      );
-      galleries.push(gallery);
-    }
-
-    console.log(`Seeded ${galleries.length} galleries.`);
-
+    const properties = [];
     // Seed Properties
-    for (let i = 1; i <= 20; i++) {
+    for (let i = 1; i < propertyData.length; i++) {
+      const data = propertyData[i];
+
       const assignedAgent = agents[Math.floor(Math.random() * agents.length)];
 
-      const assignedReviews = getRandomSubset(reviews, 5, 7); // 5 to 7 reviews
-      const assignedGalleries = getRandomSubset(galleries, 3, 8); // 3 to 8 galleries
+      // const assignedReviews = getRandomSubset(reviews, 5, 7); // 5 to 7 reviews
+      // const assignedGalleries = getRandomSubset(galleries, 3, 8); // 3 to 8 galleries
 
       const selectedFacilities = facilities
         .sort(() => 0.5 - Math.random())
@@ -157,31 +134,79 @@ async function seed() {
               Math.floor(Math.random() * propertiesImages.length)
             ];
 
-      const property = await databases.createDocument(
+      const propertyy = await databases.createDocument(
         config.databaseId!,
         COLLECTIONS.PROPERTY!,
         ID.unique(),
         {
-          name: `Property ${i}`,
-          type: propertyTypes[Math.floor(Math.random() * propertyTypes.length)],
-          description: `This is the description for Property ${i}.`,
-          address: `123 Property Street, City ${i}`,
-          geolocation: `192.168.1.${i}, 192.168.1.${i}`,
-          price: Math.floor(Math.random() * 9000) + 1000,
-          area: Math.floor(Math.random() * 3000) + 500,
-          bedrooms: Math.floor(Math.random() * 5) + 1,
-          bathrooms: Math.floor(Math.random() * 5) + 1,
-          rating: Math.floor(Math.random() * 5) + 1,
+          name: data.name,
+          type: data.type,
+          description: data.description,
+          address: data.address,
+          geolocation: `${(Math.random() * 180 - 90).toFixed(6)}, ${(
+            Math.random() * 360 -
+            180
+          ).toFixed(6)}`, // Random lat/long
+          price: data.price,
+          area: data.area,
+          bedrooms: data.bedrooms,
+          bathrooms: data.bathrooms,
+          rating: Math.floor(Math.random() * 3) + 3, // Rating between 3-5
           facilities: selectedFacilities,
           image: image,
           agent: assignedAgent.$id,
-          reviews: assignedReviews.map((review) => review.$id),
-          gallery: assignedGalleries.map((gallery) => gallery.$id),
         }
       );
 
-      console.log(`Seeded property: ${property.name}`);
+      properties.push(propertyy);
+      console.log(`Seeded property: ${propertyy.name}`);
     }
+
+    // Seed Reviews
+    for (let i = 1; i <= 20; i++) {
+      const randomProperty =
+        properties[Math.floor(Math.random() * properties.length)];
+      const reviewText =
+        reviewTexts[Math.floor(Math.random() * reviewTexts.length)];
+      const reviewerName = reviewerNames[i % reviewerNames.length];
+      const review = await databases.createDocument(
+        config.databaseId!,
+        COLLECTIONS.REVIEWS!,
+        ID.unique(),
+        {
+          name: reviewerName,
+          avatar: reviewImages[Math.floor(Math.random() * reviewImages.length)],
+          review: reviewText,
+          rating: Math.floor(Math.random() * 3) + 3, // Rating between 3-5 (mostly positive)
+          property: randomProperty.$id,
+        }
+      );
+      console.log(`Seeded review: ${review.name}`);
+    }
+
+    // Seed Galleries and link them to properties
+    let galleryCount = 0;
+    for (const property of properties) {
+      const numGalleries = Math.floor(Math.random() * 6) + 3; // 3 to 8 images per property
+
+      for (let i = 0; i < numGalleries; i++) {
+        const image =
+          galleryImages[Math.floor(Math.random() * galleryImages.length)];
+
+        await databases.createDocument(
+          config.databaseId!,
+          COLLECTIONS.GALLERY!,
+          ID.unique(),
+          {
+            image,
+            property: property.$id, // Link gallery to property
+          }
+        );
+        galleryCount++;
+      }
+    }
+
+    console.log(`Seeded ${galleryCount} galleries.`);
 
     console.log("Data seeding completed.");
   } catch (error) {

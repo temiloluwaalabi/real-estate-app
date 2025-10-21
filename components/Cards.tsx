@@ -1,25 +1,9 @@
 import icons from "@/constants/icons";
 import images from "@/constants/images";
+import { Property } from "@/types";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { Models } from "react-native-appwrite";
-export type Property = Models.Document & {
-  name: string;
-  type: string;
-  description: string;
-  address: string;
-  price: number;
-  area: number;
-  bedrooms: number;
-  bathrooms: number;
-  rating: number;
-  facilities: string[];
-  image: string;
-  geolocation: string;
-  // gallery: Gallery[];
-  // agent: Agent;
-  // reviews: Review[];
-};
+
 interface Props {
   item?: Property;
   onPress?: () => void;
